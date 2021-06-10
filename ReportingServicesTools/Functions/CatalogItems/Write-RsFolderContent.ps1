@@ -37,12 +37,25 @@ function Write-RsFolderContent
             Use "New-RsWebServiceProxy" to generate a proxy object for reuse.
             Useful when repeatedly having to connect to multiple different Report Server.
 
+        .PARAMETER FileExtensionsToUpload
+            An array of file extensions to upload. 
+            Useful when Reports and Data Sources are stored in the same folder on disk, but a different
+            folder on the server. E.g. -FileExtensionsToUpload @(".rsds", ".rsd", ".rds")
         .EXAMPLE
             Write-RsFolderContent -ReportServerUri 'http://localhost/reportserver_sql2012' -Path c:\monthlyreports -RsFolder /monthlyReports
 
             Description
             -----------
             Uploads all reports under c:\monthlyreports to folder /monthlyReports.
+        
+        .EXAMPLE 
+            Write-RsFolderContent -ReportServerUri 'http://localhost/reportserver_sql2012' -Path c:\Reports -RsFolder '/dataSources' -FileExtensionsToUpload @(".rsds", ".rsd", ".rds")
+
+            Write-RsFolderContent -ReportServerUri 'http://localhost/reportserver_sql2012' -Path c:\Reports -RsFolder '/monthlyReports' -FileExtensionsToUpload @(".rsdl")
+            
+            Description
+            -----------
+            Uploads all data sources under c:\monthlyreports to folder /dataSources and then all reports under c:\monthlyreports to folder /monthlyReports
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     param(
@@ -69,7 +82,10 @@ function Write-RsFolderContent
         [System.Management.Automation.PSCredential]
         $Credential,
 
-        $Proxy
+        $Proxy,
+
+        [string[]]
+        $FileExtensionsToUpload = $null
     )
 
     if ($PSCmdlet.ShouldProcess($Path, "Upload all contents in folder $(if ($Recurse) { "and subfolders " })to $RsFolder"))
@@ -90,6 +106,14 @@ function Write-RsFolderContent
         {
             $items = Get-ChildItem $Path
         }
+
+        #Create array of valid extensions to upload
+        $validExtensions = ".rdl", ".rsds", ".rsd", ".rds", ".jpg", ".jpeg", ".png"
+        if ($null -ne $FileExtensionsToUpload)
+        {
+            $validExtensions = $FileExtensionsToUpload
+        }
+
         foreach ($item in $items)
         {
             if (($item.PSIsContainer) -and $Recurse)
@@ -124,14 +148,8 @@ function Write-RsFolderContent
                     throw (New-Object System.Exception("Failed to create folder '$($item.Name)' in '$parentFolder': $($_.Exception.Message)", $_.Exception))
                 }
             }
-
-            if ($item.Extension -eq ".rdl" -or
-                $item.Extension -eq ".rsds" -or
-                $item.Extension -eq ".rsd" -or
-                $item.Extension -eq ".rds" -or
-                $item.Extension -eq ".jpg" -or
-                $item.Extension -eq ".jpeg" -or
-                $item.Extension -eq ".png" )
+            
+            if ($validExtensions.Contains($item.Extension))
             {
                 $relativePath = Clear-Substring -string $item.FullName -substring $sourceFolder.FullName.TrimEnd("\") -position front
                 $relativePath = Clear-Substring -string $relativePath -substring ("\" + $item.Name) -position back
@@ -154,6 +172,10 @@ function Write-RsFolderContent
                 {
                     throw (New-Object System.Exception("Failed to create catalog item from '$($item.FullName)' in '$parentFolder': $($_.Exception)", $_.Exception))
                 }
+            }
+            else 
+            {
+                Write-Verbose "Ignoring $($item.FullName) due to extension"
             }
         }
     }
