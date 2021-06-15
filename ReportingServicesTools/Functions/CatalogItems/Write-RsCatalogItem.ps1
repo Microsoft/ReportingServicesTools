@@ -122,11 +122,11 @@ function Write-RsCatalogItem
                 ) -or
                 (
                     $itemType -eq "Resource" -and
-                    $item.Extension -notin ('.png', '.jpg', '.jpeg')
+                    $item.Extension -notin ('.png', '.jpg', '.jpeg','.gif','.bmp')
                 )
             )
             {
-                throw "Invalid item specified! You can only upload Report, DataSource, DataSet and jpg/png files using this command!"
+                throw "Invalid item specified! You can only upload Report, DataSource, DataSet and jpg/png/gif/bmp files using this command!"
             }
 
             if ($RsFolder -eq "/")
@@ -231,6 +231,7 @@ function Write-RsCatalogItem
                         #If it is a resource we need to save the extension so the file can be recognized
                         $itemName = $item.Name
                         $property.Name = 'MimeType'
+                        <#
                         if ($item.Extension -eq ".png")
                         {
                             $property.Value = 'image/png'
@@ -238,6 +239,15 @@ function Write-RsCatalogItem
                         else
                         {
                             $property.Value = 'image/jpeg'
+                        }
+                        #>
+                        switch ($item.Extension)
+                        {
+                            '.png' {$property.Value = 'image/png'}
+                            {$_ -in '.jpg','.jpeg'} {$property.Value = 'image/jpeg'}
+                            '.gif' {$property.Value = 'image/gif'}
+                            '.bmp' {$property.Value = 'image/bmp'}
+                            Default {$property.Value = 'image/jpeg'}
                         }
                         $errorMessageItemType = 'resource'
                     }
