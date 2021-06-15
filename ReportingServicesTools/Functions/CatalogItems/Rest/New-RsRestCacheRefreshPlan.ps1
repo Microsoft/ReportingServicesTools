@@ -27,6 +27,9 @@ function New-RsRestCacheRefreshPlan
 
         .PARAMETER WebSession
             Specify the session to be used when making calls to REST Endpoint.
+            
+        .PARAMETER Description
+            Specify the description to be added to the CacheRefreshPlan.
 
         .EXAMPLE
             New-RsRestCacheRefreshPlan -RsItem /ReportCatalog
@@ -124,7 +127,7 @@ function New-RsRestCacheRefreshPlan
                             "Recurrence" = $recurrence;
                         }
                     }
-                    "ScheduleDescription" = $Description;
+                    "Description" = $Description;
                 }
 
                 $payloadJson = ConvertTo-Json $payload -Depth 15
