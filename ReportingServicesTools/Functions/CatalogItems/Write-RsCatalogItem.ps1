@@ -223,7 +223,7 @@ function Write-RsCatalogItem
                 #region Upload other stuff
                 else
                 {
-                    $additionalProperties = New-Object System.Collections.Generic.List[$propertyDataType]
+                    $additionalProperties = New-Object System.Collections.Generic.List["$propertyDataType"]
                     $property = New-Object $propertyDataType
 
                     if ($itemType -eq 'Resource')

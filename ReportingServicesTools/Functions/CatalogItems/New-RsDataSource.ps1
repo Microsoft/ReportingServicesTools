@@ -205,7 +205,7 @@ function New-RsDataSource
         throw (New-Object System.Exception("Exception occurred while converting credential retrieval to enum! $($_.Exception.Message)", $_.Exception))
     }
 
-    $additionalProperties = New-Object System.Collections.Generic.List[$propertyDataType]
+    $additionalProperties = New-Object System.Collections.Generic.List["$propertyDataType"]
     if ($Description)
     {
         $descriptionProperty = New-Object $propertyDataType

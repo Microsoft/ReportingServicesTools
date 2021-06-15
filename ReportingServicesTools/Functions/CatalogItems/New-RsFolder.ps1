@@ -88,7 +88,7 @@ function New-RsFolder
 
     $namespace = $proxy.GetType().Namespace
     $propertyDataType = "$namespace.Property"
-    $additionalProperties = New-Object System.Collections.Generic.List[$propertyDataType]
+    $additionalProperties = New-Object System.Collections.Generic.List["$propertyDataType"]
     if ($Description)
     {
         $descriptionProperty = New-Object $propertyDataType
