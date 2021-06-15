@@ -17,6 +17,15 @@ function Set-RsDatabaseCredentials
             Specify the credentials to use when connecting to the SQL Server.
             Note: This parameter will be ignored whenever DatabaseCredentialType is set to ServiceAccount!
 
+        .PARAMETER AdminDatabaseCredentialType
+            Indicate what type of admin setup credentials to use when connecting to the database: Windows (current user running this powershell) or SQL.
+            Defaults to Windows.
+
+        .PARAMETER AdminDatabaseCredential
+            Specify the admin setup credentials to use when connecting to the SQL Server.
+            This credential is used for *setup* only; it is not used for PowerBI Report Server during runtime.
+            Note: This parameter will be ignored whenever AdminDatabaseCredentialType is set to Service Account!
+
         .PARAMETER IsRemoteDatabaseServer
             Specify this parameter when the database server is on a different machine than the machine Reporting Services is on.
 
@@ -67,6 +76,12 @@ function Set-RsDatabaseCredentials
         [System.Management.Automation.PSCredential]
         $DatabaseCredential,
 
+        [Microsoft.ReportingServicesTools.SqlServerAuthenticationType]
+        $AdminDatabaseCredentialType,
+
+        [System.Management.Automation.PSCredential]
+        $AdminDatabaseCredential,
+
         [switch]
         $IsRemoteDatabaseServer,
 
@@ -112,6 +127,33 @@ function Set-RsDatabaseCredentials
         }
         #endregion Validating authentication and normalizing credentials
 
+
+        #region Validating admin authentication and normalizing credentials
+        $adminUsername = ''
+        $adminPassword = $null
+
+        # default is Windows
+        $isSQLAdminAccount = ($AdminDatabaseCredentialType -like "SQL")
+
+        # we do not allow service account - only Windows and SQL
+        if ($AdminDatabaseCredentialType -like 'serviceaccount')
+        {
+            throw "Can only use Admin Database Credentials Type of 'Windows' or 'SQL'"
+        }
+
+        # must have credentials passed
+        if ($isSQLAdminAccount)
+        {
+            if ($AdminDatabaseCredential -eq $null)
+            {
+                throw "No Admin Database Credential specified! Admin Database credential must be specified when configuring $AdminDatabaseCredentialType authentication."
+            }
+            $adminUsername = $AdminDatabaseCredential.UserName
+            $adminPassword = $AdminDatabaseCredential.GetNetworkCredential().Password
+        }
+        #endregion Validating admin authentication and normalizing credentials
+
+
         $databaseName = $rsWmiObject.DatabaseName
         $databaseServerName = $rsWmiObject.DatabaseServerName
 
@@ -135,7 +177,14 @@ function Set-RsDatabaseCredentials
         Write-Verbose "Executing database rights script..."
         try
         {
-            Invoke-Sqlcmd -ServerInstance $DatabaseServerName -Query $SQLscript -QueryTimeout $QueryTimeout -ErrorAction Stop
+            if ($isWindowsAccount)
+            {
+                Invoke-Sqlcmd -ServerInstance $DatabaseServerName -Query $SQLscript -QueryTimeout $QueryTimeout -ErrorAction Stop
+            }
+            else 
+            {
+                Invoke-Sqlcmd -ServerInstance $DatabaseServerName -Query $SQLscript -QueryTimeout $QueryTimeout -ErrorAction Stop -Username $adminUsername -Password $adminPassword
+            }
         }
         catch
         {
