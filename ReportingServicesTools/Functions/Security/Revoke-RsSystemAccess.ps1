@@ -66,8 +66,15 @@ function Revoke-RsSystemAccess
         [System.Management.Automation.PSCredential]
         $Credential,
         
-        $Proxy
+        $Proxy,
+
+        [switch]
+        $Force
     )
+
+    if ($Force) {
+        $ConfirmPreference = 'None'
+    }
     
     if ($PSCmdlet.ShouldProcess((Get-ShouldProcessTargetweb -BoundParameters $PSBoundParameters), "Revoke all system access for $Identity"))
     {

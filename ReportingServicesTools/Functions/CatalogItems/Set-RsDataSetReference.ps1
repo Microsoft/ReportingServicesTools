@@ -62,7 +62,10 @@ function Set-RsDataSetReference
         [System.Management.Automation.PSCredential]
         $Credential,
         
-        $Proxy
+        $Proxy,
+
+        [switch]
+        $Force
     )
     
     Begin
@@ -72,6 +75,10 @@ function Set-RsDataSetReference
     
     Process
     {
+        if ($Force) {
+            $ConfirmPreference = 'None'
+        }
+
         foreach ($item in $Path)
         {
             #region Process each path passed

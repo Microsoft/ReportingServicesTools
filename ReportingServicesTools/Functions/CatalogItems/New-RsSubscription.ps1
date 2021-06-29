@@ -230,7 +230,10 @@ function New-RsSubscription
         [Parameter(ParameterSetName='FileShare')]
         [ValidateSet('None','Overwrite','AutoIncrement')]
         [string]
-        $FileWriteMode = 'Overwrite'
+        $FileWriteMode = 'Overwrite',
+
+        [switch]
+        $Force
     )
 
     Begin
@@ -239,6 +242,10 @@ function New-RsSubscription
     }
     Process
     {
+        if ($Force) {
+            $ConfirmPreference = 'None'
+        }
+
         if ([System.String]::IsNullOrEmpty($RsItem))
         {
             throw 'No report path was specified! You need to specify -RsItem variable.'

@@ -89,8 +89,15 @@ function Grant-RsCatalogItemRole
         [System.Management.Automation.PSCredential]
         $Credential,
 
-        $Proxy
+        $Proxy,
+
+        [switch]
+        $Force
     )
+
+    if ($Force) {
+        $ConfirmPreference = 'None'
+    }
 
     if ($PSCmdlet.ShouldProcess((Get-ShouldProcessTargetweb -BoundParameters $PSBoundParameters), "Grant $RoleName on $Path to $Identity"))
     {

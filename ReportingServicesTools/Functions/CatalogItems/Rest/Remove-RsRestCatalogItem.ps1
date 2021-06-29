@@ -52,7 +52,10 @@ function Remove-RsRestCatalogItem
         $Credential,
 
         [Microsoft.PowerShell.Commands.WebRequestSession]
-        $WebSession
+        $WebSession,
+
+        [switch]
+        $Force
     )
     Begin
     {
@@ -62,6 +65,10 @@ function Remove-RsRestCatalogItem
     }
     Process
     {
+        if ($Force) {
+            $ConfirmPreference = 'None'
+        }
+
         if ($RsItem -eq '/')
         {
             throw "Root folder cannot be deleted!"

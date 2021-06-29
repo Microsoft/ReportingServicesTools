@@ -102,7 +102,10 @@ function Copy-RsSubscription
 
         [parameter(Mandatory = $False)]
         [System.Boolean]
-        $SkipOwner = $False
+        $SkipOwner = $False,
+
+        [switch]
+        $Force
     )
     Begin
     {
@@ -125,6 +128,10 @@ function Copy-RsSubscription
     {
         try
         {
+            if ($Force) {
+                $ConfirmPreference = 'None'
+            }
+
             foreach ($sub in $Subscription)
             {
                 if ($RsFolder)

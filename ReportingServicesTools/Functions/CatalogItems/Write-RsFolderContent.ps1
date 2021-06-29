@@ -69,8 +69,15 @@ function Write-RsFolderContent
         [System.Management.Automation.PSCredential]
         $Credential,
 
-        $Proxy
+        $Proxy,
+
+        [switch]
+        $Force
     )
+
+    if ($Force) {
+        $ConfirmPreference = 'None'
+    }
 
     if ($PSCmdlet.ShouldProcess($Path, "Upload all contents in folder $(if ($Recurse) { "and subfolders " })to $RsFolder"))
     {

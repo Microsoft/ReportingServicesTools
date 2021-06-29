@@ -34,7 +34,10 @@ function Export-RsSubscriptionXml {
 
         [Parameter(Mandatory = $True, ValueFromPipeline=$true)]
         [object]
-        $Subscription
+        $Subscription,
+
+        [switch]
+        $Force
     )
 
     Begin {
@@ -44,6 +47,10 @@ function Export-RsSubscriptionXml {
         $Subscriptions = $Subscriptions + $Subscription
     }
     End {
+        
+        if ($Force) {
+            $ConfirmPreference = 'None'
+        }
         
         if ($PSCmdlet.ShouldProcess($Path, "Exporting subscriptions")) 
         {

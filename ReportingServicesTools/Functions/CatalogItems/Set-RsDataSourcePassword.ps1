@@ -55,7 +55,10 @@ function Set-RsDataSourcePassword
         [System.Management.Automation.PSCredential]
         $Credential,
         
-        $Proxy
+        $Proxy,
+
+        [switch]
+        $Force
     )
     
     Begin
@@ -65,6 +68,10 @@ function Set-RsDataSourcePassword
     
     Process
     {
+        if ($Force) {
+            $ConfirmPreference = 'None'
+        }
+        
         foreach ($item in $Path)
         {
             if ($PSCmdlet.ShouldProcess($item, "Overwrite the password"))

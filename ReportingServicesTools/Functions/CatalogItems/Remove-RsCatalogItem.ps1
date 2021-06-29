@@ -57,7 +57,10 @@ function Remove-RsCatalogItem
         [System.Management.Automation.PSCredential]
         $Credential,
 
-        $Proxy
+        $Proxy,
+
+        [switch]
+        $Force
     )
     
     Begin
@@ -67,6 +70,10 @@ function Remove-RsCatalogItem
     
     Process
     {
+        if ($Force) {
+            $ConfirmPreference = 'None'
+        }
+
         foreach ($item in $RsItem)
         {
             if ($PSCmdlet.ShouldProcess($item, "Delete the catalog item"))

@@ -53,7 +53,7 @@ function Set-RsDataSource
             This command will establish a connection to the Report Server located at $rsProxy using current user's credentials and update the details of data source found at '/path/to/my/datasource'.
     #>
     
-    [cmdletbinding()]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     param
     (
         [Alias('DataSourcePath','ItemPath', 'Path')]
@@ -74,8 +74,15 @@ function Set-RsDataSource
         [System.Management.Automation.PSCredential]
         $Credential,
         
-        $Proxy
+        $Proxy,
+
+        [switch]
+        $Force
     )
+
+    if ($Force) {
+        $ConfirmPreference = 'None'
+    }
     
     if ($PSCmdlet.ShouldProcess($RsItem, "Applying new definition"))
     {

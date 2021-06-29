@@ -75,9 +75,16 @@ function Backup-RsEncryptionKey
         $ComputerName,
         
         [System.Management.Automation.PSCredential]
-        $Credential
+        $Credential,
+
+        [Switch]
+        $Force
     )
     
+    if ($Force){
+        $ConfirmPreference = 'None'
+    }
+
     if ($PSCmdlet.ShouldProcess((Get-ShouldProcessTargetWmi -BoundParameters $PSBoundParameters), "Retrieve encryption key and create backup in $KeyPath"))
     {
         $rsWmiObject = New-RsConfigurationSettingObjectHelper -BoundParameters $PSBoundParameters

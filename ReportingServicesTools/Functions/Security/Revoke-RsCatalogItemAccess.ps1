@@ -74,8 +74,15 @@ function Revoke-RsCatalogItemAccess
         [System.Management.Automation.PSCredential]
         $Credential,
         
-        $Proxy
+        $Proxy,
+
+        [switch]
+        $Force
     )
+
+    if ($Force) {
+        $ConfirmPreference = 'None'
+    }
     
     if ($PSCmdlet.ShouldProcess((Get-ShouldProcessTargetweb -BoundParameters $PSBoundParameters), "Revoke all roles on $Path for $Identity"))
     {

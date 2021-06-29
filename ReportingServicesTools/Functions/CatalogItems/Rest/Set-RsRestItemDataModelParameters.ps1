@@ -61,7 +61,10 @@ function Set-RsRestItemDataModelParameter
         $Credential,
 
         [Microsoft.PowerShell.Commands.WebRequestSession]
-        $WebSession
+        $WebSession,
+
+        [switch]
+        $Force
     )
     Begin
     {
@@ -71,6 +74,10 @@ function Set-RsRestItemDataModelParameter
     }
     Process
     {
+        if ($Force) {
+            $ConfirmPreference = 'None'
+        }
+
         try
         {          
             $dataModelParametersUri = [String]::Format($dataModelParametersUri, $RsItem)

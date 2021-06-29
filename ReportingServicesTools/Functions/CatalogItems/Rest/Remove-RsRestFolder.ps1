@@ -52,7 +52,10 @@ function Remove-RsRestFolder
         $Credential,
 
         [Microsoft.PowerShell.Commands.WebRequestSession]
-        $WebSession
+        $WebSession,
+
+        [switch]
+        $Force
     )
     Begin
     {
@@ -62,6 +65,10 @@ function Remove-RsRestFolder
     }
     Process
     {
+        if ($Force) {
+            $ConfirmPreference = 'None'
+        }
+        
         if ($RsFolder -eq '/')
         {
             throw "Root folder cannot be deleted!"

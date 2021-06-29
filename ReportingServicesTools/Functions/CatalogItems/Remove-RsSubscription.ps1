@@ -72,7 +72,10 @@ function Remove-RsSubscription
         [System.Management.Automation.PSCredential]
         $Credential,
 
-        $Proxy
+        $Proxy,
+
+        [switch]
+        $Force
     )
     Begin
     {
@@ -80,6 +83,10 @@ function Remove-RsSubscription
     }
     Process
     {
+        if ($Force) {
+            $ConfirmPreference = 'None'
+        }
+
         if ([System.String]::IsNullOrEmpty($SubscriptionId)) 
         {
             foreach ($item in $Subscription)

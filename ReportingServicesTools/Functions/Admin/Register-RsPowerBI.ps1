@@ -114,8 +114,15 @@ function Register-RsPowerBI
         $ComputerName,
         
         [System.Management.Automation.PSCredential]
-        $Credential
+        $Credential,
+
+        [switch]
+        $Force
     )
+
+    if ($Force){
+        $ConfirmPreference = 'None'
+    }
     
     if ($PSCmdlet.ShouldProcess((Get-ShouldProcessTargetWmi -BoundParameters $PSBoundParameters), "Registering PowerBI for SQL Server Instance"))
     {

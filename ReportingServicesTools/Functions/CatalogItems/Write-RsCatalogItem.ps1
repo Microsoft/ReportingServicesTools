@@ -81,7 +81,10 @@ function Write-RsCatalogItem
         [System.Management.Automation.PSCredential]
         $Credential,
 
-        $Proxy
+        $Proxy,
+
+        [switch]
+        $Force
     )
 
     Begin
@@ -93,6 +96,10 @@ function Write-RsCatalogItem
 
     Process
     {
+        if ($Force) {
+            $ConfirmPreference = 'None'
+        }
+
         foreach ($item in $Path)
         {
             #region Manage Paths

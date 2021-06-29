@@ -126,8 +126,15 @@ function Set-RsDatabase
         $Credential,
 
         [int]
-        $QueryTimeout = 30
+        $QueryTimeout = 30,
+
+        [switch]
+        $Force
     )
+
+    if ($Force){
+        $ConfirmPreference = 'None'
+    }
 
     if ($PSCmdlet.ShouldProcess((Get-ShouldProcessTargetWmi -BoundParameters $PSBoundParameters), "Configure to use $DatabaseServerName as database, using $DatabaseCredentialType runtime authentication and $AdminDatabaseCredentialType setup authentication"))
     {

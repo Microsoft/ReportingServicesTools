@@ -133,7 +133,10 @@ function Set-RsRestItemDataSource
         $Credential,
 
         [Microsoft.PowerShell.Commands.WebRequestSession]
-        $WebSession
+        $WebSession,
+
+        [switch]
+        $Force
     )
     Begin
     {
@@ -143,6 +146,10 @@ function Set-RsRestItemDataSource
     }
     Process
     {
+        if ($Force) {
+            $ConfirmPreference = 'None'
+        }
+
         try
         {
             # Basic DataSource Validation - Start

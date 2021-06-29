@@ -68,8 +68,15 @@ function Restore-RSEncryptionKey
         $ComputerName,
 
         [System.Management.Automation.PSCredential]
-        $Credential
+        $Credential,
+
+        [switch]
+        $Force
     )
+
+    if ($Force){
+        $ConfirmPreference = 'None'
+    }
 
     if ($PSCmdlet.ShouldProcess((Get-ShouldProcessTargetWmi -BoundParameters $PSBoundParameters), "Restore encryptionkey from file $KeyPath"))
     {
