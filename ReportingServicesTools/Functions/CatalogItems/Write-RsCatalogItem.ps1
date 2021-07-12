@@ -10,7 +10,7 @@ function Write-RsCatalogItem
 
         .DESCRIPTION
             Uploads an item from disk to a report server.
-            Currently, we are only supporting Report, DataSource, DataSet and jpg/png for uploads
+            Currently, we are only supporting Report, DataSource, DataSet, jpg/png/gif/bmp, xls/xlsx and pdf for upload
 
         .PARAMETER Path
             Path to item to upload on disk.
@@ -118,15 +118,20 @@ function Write-RsCatalogItem
                     $itemType -ne "Report" -and
                     $itemType -ne "DataSource" -and
                     $itemType -ne "DataSet" -and
-                    $itemType -ne "Resource"
+                    $itemType -ne "Resource" -and
+                    $itemType -ne "ExcelWorkbook"
                 ) -or
                 (
                     $itemType -eq "Resource" -and
-                    $item.Extension -notin ('.png', '.jpg', '.jpeg')
+                    $item.Extension -notin ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.pdf')
+                ) -or
+                (
+                    $itemType -eq "ExcelWorkbook" -and
+                    $item.Extension -notin ('.xls', '.xlsx')
                 )
             )
             {
-                throw "Invalid item specified! You can only upload Report, DataSource, DataSet and jpg/png files using this command!"
+                throw "Invalid item specified! You can only upload Report, DataSource, DataSet, jpg/png/gif/bmp, xls/xlsx and pdf files using this command!"
             }
 
             if ($RsFolder -eq "/")
@@ -159,7 +164,7 @@ function Write-RsCatalogItem
                         {
                             throw "Data Source Definition not found in the specified file: $EntirePath!"
                         }
-    
+
                         $NewRsDataSourceParam = @{
                             Proxy = $Proxy
                             RsFolder = $RsFolder
@@ -173,7 +178,7 @@ function Write-RsCatalogItem
                     }
                     elseif ($item.Extension -eq '.rds')
                     {
-                        if ($content -eq $null -or 
+                        if ($content -eq $null -or
                             $content.RptDataSource -eq $null -or
                             $content.RptDataSource.Name -eq $null -or
                             $content.RptDataSource.ConnectionProperties -eq $null -or
@@ -226,20 +231,58 @@ function Write-RsCatalogItem
                     $additionalProperties = New-Object System.Collections.Generic.List[$propertyDataType]
                     $property = New-Object $propertyDataType
 
-                    if ($itemType -eq 'Resource')
+                    if ($itemType -in ('Resource', 'ExcelWorkbook'))
                     {
                         #If it is a resource we need to save the extension so the file can be recognized
                         $itemName = $item.Name
                         $property.Name = 'MimeType'
-                        if ($item.Extension -eq ".png")
+                        switch ($item.Extension)
                         {
-                            $property.Value = 'image/png'
+                            ".png"
+                            {
+                                $property.Value = 'image/png'
+                                break
+                            }
+                            ".jpeg"
+                            {
+                                $property.Value = 'image/jpeg'
+                                break
+                            }
+                            ".jpg"
+                            {
+                                $property.Value = 'image/jpg'
+                                break
+                            }
+                            ".gif"
+                            {
+                                $property.Value = 'image/gif'
+                                break
+                            }
+                            ".bmp"
+                            {
+                                $property.Value = 'image/bmp'
+                                break
+                            }
+                            ".xls"
+                            {
+                                #To upload the item type needs to be 'Resource'
+                                $itemType = "Resource"
+                                $property.Value = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                                break
+                            }
+                            ".xlsx"
+                            {
+                                #To upload the item type needs to be 'Resource'
+                                $itemType = "Resource"
+                                $property.Value = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                                break
+                            }
+                            ".pdf"
+                            {
+                                $property.Value = 'application/pdf'
+                                break
+                            }
                         }
-                        else
-                        {
-                            $property.Value = 'image/jpeg'
-                        }
-                        $errorMessageItemType = 'resource'
                     }
                     else
                     {
@@ -257,7 +300,7 @@ function Write-RsCatalogItem
                         $hiddenProperty.Value = $Hidden
                         $additionalProperties.Add($hiddenProperty)
                     }
-                
+
                     $bytes = [System.IO.File]::ReadAllBytes($EntirePath)
                     $warnings = $null
                     try
